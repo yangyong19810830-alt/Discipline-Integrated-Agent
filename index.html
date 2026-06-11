@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>溯源 · 回到知识的发生现场</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Noto+Serif+SC:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1525;
+    --slate:#16203A;
+    --slate-2:#1D2A47;
+    --amber:#E8A33D;
+    --amber-dim:#b6802f;
+    --teal:#5BA8A0;
+    --parchment:#F2EDE2;
+    --muted:#8B95A8;
+    --line:rgba(242,237,226,.10);
+    --line-strong:rgba(242,237,226,.18);
+    --serif:"Newsreader","Noto Serif SC",Georgia,serif;
+    --sc:"Noto Serif SC",serif;
+    --sans:"Inter",-apple-system,system-ui,sans-serif;
+    --mono:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--parchment);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--amber);color:var(--ink)}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+  /* ---------- top bar ---------- */
+  header.bar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(14,21,37,.82);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--sc);font-weight:600;letter-spacing:.04em;font-size:18px}
+  .brand .glyph{
+    width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 50% 35%, var(--amber), var(--amber-dim) 70%);
+    box-shadow:0 0 16px rgba(232,163,61,.5);position:relative;flex:none;
+  }
+  .brand .glyph::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--ink)}
+  .brand small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+  .key-btn{
+    font-family:var(--mono);font-size:12px;color:var(--muted);
+    border:1px solid var(--line-strong);border-radius:7px;padding:7px 13px;
+    display:flex;align-items:center;gap:7px;transition:.18s;
+  }
+  .key-btn:hover{color:var(--parchment);border-color:var(--amber)}
+  .key-dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+  .key-dot.on{background:var(--teal);box-shadow:0 0 8px var(--teal)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:74px 0 30px;position:relative}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin-bottom:22px}
+  .hero h1{
+    font-family:var(--serif);font-weight:400;font-size:clamp(34px,6vw,62px);
+    line-height:1.08;letter-spacing:-.01em;max-width:16ch;margin-bottom:24px;
+  }
+  .hero h1 em{font-style:italic;color:var(--amber)}
+  .hero p.lede{font-size:clamp(15px,2vw,18px);color:#c9c2b4;max-width:54ch;margin-bottom:6px}
+  .hero p.lede b{color:var(--parchment);font-weight:500}
+
+  /* the live problem field */
+  .field{
+    margin-top:42px;border:1px solid var(--line-strong);border-radius:16px;
+    background:linear-gradient(180deg, var(--slate), var(--ink));
+    padding:30px 30px 26px;position:relative;overflow:hidden;
+  }
+  .field::before{
+    content:"";position:absolute;left:-10%;bottom:-60%;width:120%;height:120%;
+    background:radial-gradient(ellipse at 50% 100%, rgba(232,163,61,.16), transparent 60%);
+    pointer-events:none;
+  }
+  .field-label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;position:relative}
+  .field-row{display:flex;gap:12px;position:relative;flex-wrap:wrap}
+  .field-input{
+    flex:1;min-width:240px;background:var(--ink);border:1px solid var(--line-strong);
+    border-radius:10px;color:var(--parchment);font-family:var(--sc);font-size:16px;
+    padding:15px 17px;transition:.18s;
+  }
+  .field-input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,163,61,.12)}
+  .field-input::placeholder{color:#5c6680}
+  .dig{
+    background:var(--amber);color:var(--ink);font-weight:600;font-size:15px;
+    border-radius:10px;padding:0 26px;display:flex;align-items:center;gap:9px;
+    transition:.16s;white-space:nowrap;
+  }
+  .dig:hover{background:#f2b658;transform:translateY(-1px)}
+  .dig:active{transform:translateY(0)}
+  .dig:disabled{opacity:.5;cursor:wait;transform:none}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;position:relative}
+  .chip{
+    font-size:13px;color:#c9c2b4;border:1px solid var(--line);border-radius:20px;
+    padding:6px 14px;transition:.16s;font-family:var(--sc);
+  }
+  .chip:hover{border-color:var(--teal);color:var(--parchment);background:rgba(91,168,160,.08)}
+
+  /* ---------- engine tabs ---------- */
+  .engines{padding:40px 0 8px}
+  .engines-head{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+  .engine-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .engine{
+    text-align:left;border:1px solid var(--line);border-radius:13px;padding:18px 17px 16px;
+    background:var(--slate);transition:.18s;position:relative;overflow:hidden;
+  }
+  .engine:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+  .engine.active{border-color:var(--amber);background:var(--slate-2)}
+  .engine.active::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber)}
+  .engine .n{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.1em}
+  .engine h3{font-family:var(--sc);font-weight:600;font-size:16px;margin:9px 0 6px}
+  .engine p{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+  /* ---------- canvas / strata ---------- */
+  .canvas{padding:30px 0 90px;min-height:200px}
+  .empty{
+    text-align:center;color:var(--muted);font-family:var(--sc);font-size:15px;
+    padding:60px 0;border:1px dashed var(--line);border-radius:14px;
+  }
+  .empty .big{font-family:var(--serif);font-style:italic;font-size:22px;color:#c9c2b4;display:block;margin-bottom:8px}
+
+  .result-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+  .result-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(24px,4vw,36px);letter-spacing:-.01em}
+  .result-head .mode-tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);border:1px solid rgba(91,168,160,.3);border-radius:6px;padding:4px 10px;white-space:nowrap}
+  .result-sub{color:var(--muted);font-size:14px;margin-bottom:30px;font-family:var(--sc)}
+
+  /* strata = vertical dig (engine 1 & 3) */
+  .strata{position:relative;padding-left:34px}
+  .strata::before{content:"";position:absolute;left:9px;top:8px;bottom:18px;width:2px;
+    background:linear-gradient(180deg,var(--line-strong),var(--amber));}
+  .layer{position:relative;margin-bottom:14px;animation:rise .5s both}
+  .layer .node{position:absolute;left:-34px;top:20px;width:20px;height:20px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--amber-dim);display:flex;align-items:center;justify-content:center}
+  .layer .node::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber-dim)}
+  .layer:last-child .node{border-color:var(--amber);box-shadow:0 0 14px rgba(232,163,61,.5)}
+  .layer:last-child .node::after{background:var(--amber)}
+  .layer-card{
+    background:var(--slate);border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+    transition:.18s;
+  }
+  .layer-card:hover{border-color:var(--line-strong)}
+  .layer .tier{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  .layer .tier b{color:var(--amber);font-weight:500}
+  .layer h4{font-family:var(--sc);font-weight:600;font-size:17px;margin-bottom:7px}
+  .layer p{font-size:14.5px;color:#cfc8ba;line-height:1.66}
+  .layer.origin .layer-card{border-color:rgba(232,163,61,.4);background:linear-gradient(180deg,rgba(232,163,61,.07),var(--slate))}
+
+  /* fork = lateral branches (engine 2) */
+  .fork-root{
+    background:linear-gradient(180deg,rgba(232,163,61,.1),var(--slate));
+    border:1px solid rgba(232,163,61,.4);border-radius:14px;padding:22px 24px;margin-bottom:8px;
+  }
+  .fork-root .tier{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
+  .fork-root h4{font-family:var(--serif);font-style:italic;font-weight:400;font-size:22px;line-height:1.3;margin-bottom:8px}
+  .fork-root p{color:#cfc8ba;font-size:14.5px}
+  .fork-stem{height:26px;width:2px;background:var(--line-strong);margin-left:34px}
+  .branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
+  .branch{background:var(--slate);border:1px solid var(--line);border-top:2px solid var(--teal);
+    border-radius:0 0 12px 12px;padding:17px 18px;animation:rise .5s both;transition:.18s}
+  .branch:hover{border-color:var(--line-strong);border-top-color:var(--teal);transform:translateY(-2px)}
+  .branch .disc{font-family:var(--sc);font-weight:600;font-size:15px;color:var(--teal);margin-bottom:7px}
+  .branch h5{font-family:var(--sc);font-size:14px;font-weight:600;margin-bottom:6px}
+  .branch p{font-size:13.5px;color:#cfc8ba;line-height:1.6}
+
+  /* three-coordinate strip (engine 4) */
+  .coords{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:6px}
+  .coord{background:var(--slate);border:1px solid var(--line);border-radius:12px;padding:18px 19px;animation:rise .5s both}
+  .coord .axis{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px}
+  .coord:nth-child(1) .axis{color:var(--amber)}
+  .coord:nth-child(2) .axis{color:var(--teal)}
+  .coord:nth-child(3) .axis{color:#c98fd6}
+  .coord h4{font-family:var(--sc);font-weight:600;font-size:15px;margin-bottom:7px}
+  .coord p{font-size:13.5px;color:#cfc8ba;line-height:1.62}
+
+  .closing{
+    margin-top:22px;border-left:2px solid var(--amber);padding:14px 0 14px 20px;
+    font-family:var(--serif);font-style:italic;font-size:clamp(17px,2.4vw,21px);line-height:1.5;color:var(--parchment);
+  }
+  .spark{
+    margin-top:18px;background:rgba(91,168,160,.07);border:1px solid rgba(91,168,160,.22);
+    border-radius:12px;padding:16px 19px;font-size:14px;color:#cfc8ba;
+  }
+  .spark b{color:var(--teal);font-family:var(--sc)}
+
+  /* learning trail */
+  .trail{padding:6px 0 0}
+  .trail-box{border:1px solid var(--line);border-radius:13px;background:rgba(91,168,160,.05);padding:16px 18px}
+  .trail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .trail-title{font-family:var(--sc);font-weight:600;font-size:14px;color:var(--parchment);display:flex;align-items:center;gap:8px}
+  .trail-title em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--teal);border:1px solid rgba(91,168,160,.3);border-radius:20px;padding:2px 9px}
+  .trail-clear{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;transition:.16s}
+  .trail-clear:hover{color:#f2a08c}
+  .trail-list{display:flex;flex-direction:column;gap:4px}
+
+  .trail-group{padding:10px 0 2px;border-top:1px solid var(--line)}
+  .trail-group:first-child{border-top:none}
+  .tg-head{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .tg-name{font-family:var(--sc);font-weight:600;font-size:13px;color:var(--amber);letter-spacing:.02em}
+  .tg-num{font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--slate);border-radius:10px;padding:1px 7px}
+  .tg-items{display:flex;flex-direction:column;gap:7px}
+
+  .trail-item{
+    display:flex;align-items:center;gap:12px;background:var(--slate);border:1px solid var(--line-strong);
+    border-left:3px solid var(--muted);border-radius:9px;padding:9px 11px 9px 13px;transition:.16s;flex-wrap:wrap;
+  }
+  .trail-item.lv-0{border-left-color:var(--muted)}
+  .trail-item.lv-1{border-left-color:var(--amber)}
+  .trail-item.lv-2{border-left-color:var(--teal)}
+  .trail-item .ti-topic{font-family:var(--sc);font-weight:600;font-size:14.5px;cursor:pointer;transition:.16s}
+  .trail-item .ti-topic:hover{color:var(--amber)}
+  .trail-item .ti-engs{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em;flex:1;min-width:90px}
+  .ti-levels{display:flex;gap:4px}
+  .ti-lv{
+    font-family:var(--sc);font-size:11px;color:var(--muted);border:1px solid var(--line-strong);
+    border-radius:6px;padding:3px 9px;transition:.14s;white-space:nowrap;
+  }
+  .ti-lv:hover{border-color:var(--line-strong);color:var(--parchment)}
+  .ti-lv.lv0.on{background:rgba(139,149,168,.22);color:var(--parchment);border-color:transparent}
+  .ti-lv.lv1.on{background:var(--amber);color:var(--ink);border-color:transparent;font-weight:600}
+  .ti-lv.lv2.on{background:var(--teal);color:var(--ink);border-color:transparent;font-weight:600}
+  .trail-item .ti-x{color:var(--muted);font-size:15px;line-height:1;padding:0 2px;cursor:pointer;transition:.16s}
+  .trail-item .ti-x:hover{color:#f2a08c}
+
+
+  .digging{padding:54px 0;text-align:center}
+  .digging .bars{display:flex;gap:5px;justify-content:center;align-items:flex-end;height:46px;margin-bottom:20px}
+  .digging .bars span{width:6px;background:var(--amber);border-radius:3px;animation:dig 1s ease-in-out infinite}
+  .digging .bars span:nth-child(2){animation-delay:.12s}
+  .digging .bars span:nth-child(3){animation-delay:.24s}
+  .digging .bars span:nth-child(4){animation-delay:.36s}
+  .digging .bars span:nth-child(5){animation-delay:.48s}
+  .digging p{font-family:var(--sc);color:var(--muted);font-size:14px}
+  @keyframes dig{0%,100%{height:14px;opacity:.5}50%{height:46px;opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .err{background:rgba(232,90,61,.1);border:1px solid rgba(232,90,61,.35);border-radius:12px;padding:16px 19px;color:#f0c3b8;font-size:14px}
+  .err b{color:#f2a08c}
+
+  /* key modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(8,12,22,.7);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--slate);border:1px solid var(--line-strong);border-radius:16px;max-width:440px;width:100%;padding:28px}
+  .modal h3{font-family:var(--sc);font-weight:600;font-size:18px;margin-bottom:6px}
+  .modal p{font-size:13.5px;color:var(--muted);line-height:1.6;margin-bottom:18px}
+  .modal input{width:100%;background:var(--ink);border:1px solid var(--line-strong);border-radius:9px;color:var(--parchment);font-family:var(--mono);font-size:13px;padding:13px 15px;margin-bottom:8px}
+  .modal input:focus{outline:none;border-color:var(--amber)}
+  .seg{display:flex;gap:6px;background:var(--ink);border:1px solid var(--line-strong);border-radius:9px;padding:4px;margin-bottom:14px}
+  .seg-btn{flex:1;font-family:var(--sc);font-size:13px;color:var(--muted);border-radius:6px;padding:8px;transition:.14s}
+  .seg-btn.active{background:var(--slate-2);color:var(--parchment)}
+  .modal-note{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.55}
+  .modal-row{display:flex;gap:10px}
+  .modal-row button{flex:1;border-radius:9px;padding:12px;font-size:14px;font-weight:500}
+  .save{background:var(--amber);color:var(--ink);font-weight:600}
+  .cancel{border:1px solid var(--line-strong);color:var(--muted)}
+  .cancel:hover{color:var(--parchment)}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:12.5px;font-family:var(--mono);letter-spacing:.04em}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  @media(max-width:860px){
+    .engine-grid{grid-template-columns:repeat(2,1fr)}
+    .coords{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .wrap{padding:0 18px}
+    .engine-grid{grid-template-columns:1fr}
+    .field-row{flex-direction:column}
+    .dig{padding:14px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <div class="brand">
+      <span class="glyph"></span>
+      溯源 <small>back to origin</small>
+    </div>
+    <button class="key-btn" id="keyBtn">
+      <span class="key-dot" id="keyDot"></span>
+      <span id="keyLabel">连接实时生成</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">不教结论 · 教结论怎么长出来的</div>
+      <h1>每一个知识点，<br>都曾是一个<em>没人能回答的问题</em>。</h1>
+      <p class="lede">课本交给你的是<b>结晶</b>——定义、公式、定论。这里把它<b>放回它诞生的那一刻</b>：人类当初撞上了什么麻烦，试过哪些走不通的路，哪一步突破让它收敛成今天的样子。</p>
+      <p class="lede">站在边界还没形成的地方学，学科之间的墙自己就消失了。</p>
+
+      <div class="field">
+        <div class="field-label">输入任意一个知识点 · 把它挖回发生现场</div>
+        <div class="field-row">
+          <input class="field-input" id="topic" placeholder="比如：负数 / 导数 / 熵 / 透视法 / 标点符号……" />
+          <button class="dig" id="digBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+            开挖
+          </button>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="engines">
+    <div class="wrap">
+      <div class="engines-head">选择挖掘方式 · 四种打通割裂的引擎</div>
+      <div class="engine-grid" id="engineGrid"></div>
+    </div>
+  </section>
+
+  <section class="trail" id="trailSection" hidden>
+    <div class="wrap">
+      <div class="trail-box">
+        <div class="trail-head">
+          <span class="trail-title">学习足迹 <em id="trailCount"></em></span>
+          <button class="trail-clear" id="trailClear">清空</button>
+        </div>
+        <div class="trail-list" id="trailList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="canvas">
+    <div class="wrap" id="canvas">
+      <div class="empty">
+        <span class="big">现场尚未开挖</span>
+        在上方输入一个知识点，或点一个示例，看它如何被还原回诞生的瞬间。
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>溯源 · 回到知识的发生现场</span>
+    <span id="footMode">演示模式 · 预置精选样例</span>
+  </div>
+</footer>
+
+<!-- key modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>连接实时生成</h3>
+    <p>连上后即可对<b style="color:var(--parchment)">任意</b>知识点实时开挖，不限于预置样例。两种方式二选一：</p>
+
+    <div class="seg" id="seg">
+      <button class="seg-btn active" data-mode="proxy">用代理地址（推荐）</button>
+      <button class="seg-btn" data-mode="key">直接填 API Key</button>
+    </div>
+
+    <div id="paneProxy">
+      <input id="proxyInput" type="text" placeholder="https://你的域名/api/generate" autocomplete="off" />
+      <div class="modal-note">把密钥藏在服务器端，浏览器不接触密钥，也不受跨域限制。部署方法见随附的 proxy 文件夹（Vercel / Cloudflare 各一份）。</div>
+    </div>
+
+    <div id="paneKey" hidden>
+      <input id="keyInput" type="password" placeholder="sk-..." autocomplete="off" />
+      <div class="modal-note">最省事，适合本地试用。注意：浏览器直连 DeepSeek 可能被跨域拦截；正式上线建议改用代理地址。Key 只存在当前浏览器会话，不上传。</div>
+    </div>
+
+    <div class="modal-row">
+      <button class="cancel" id="keyCancel">取消</button>
+      <button class="save" id="keySave">保存并连接</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   溯源 — 回到知识的发生现场
+   四引擎：① 发生链还原 ② 学科分叉 ③ 成长轨迹 ④ 三层坐标
+   内容：预置精选样例 + DeepSeek API 实时生成
+   ========================================================= */
+
+const ENGINES = [
+  {id:'chain', n:'01', title:'发生链还原', desc:'不给定义，先还原它当初为回应什么麻烦而长出来——结晶连回它的根。'},
+  {id:'fork',  n:'02', title:'学科分叉',   desc:'回到一个学科边界还没形成的元问题，看几门学科如何从这一处分叉长出。'},
+  {id:'growth',n:'03', title:'成长轨迹',   desc:'同一个概念贯穿各学段——它在小学、中学、大学不是换了内容，是同一棵树在长大。'},
+  {id:'coord', n:'04', title:'三层坐标',   desc:'把知识同时放回三层：人类的意图、所依赖的现实条件、你此刻的认知起点。'},
+];
+
+let activeEngine = 'chain';
+let conn = { mode:'proxy', key:'', proxy:'' };   // mode: 'proxy' | 'key'
+function isConnected(){ return conn.mode==='key' ? !!conn.key : !!conn.proxy; }
+
+/* ---------------- 预置精选样例 ----------------
+   每个样例是 SDE 之眼判断过的"发生现场"，但全程本地教育话语。 */
+const PRESET = {
+  '负数': { subject:'数学',
+    chain:{
+      title:'负数', sub:'它被人类拒绝承认了一千多年',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“比 0 小的数”', p:'定义干净利落，于是你以为它一直就在那里、天经地义。但这句定义抹掉了一整段抗拒史。'},
+        {tier:'撞上的麻烦', t:'账本上的“欠”怎么记？', p:'有了买卖借贷，就出现了“我倒欠你三两银子”。收入能数，亏欠数不出来——已有的数不够用了。'},
+        {tier:'走不通的路', t:'长期被当作“假数 / 荒谬的数”', p:'古希腊、欧洲数学家长期拒绝它：一个数怎么能比“什么都没有”还少？方程解出负根就直接划掉，说“无解”。'},
+        {tier:'让它收敛的突破', t:'把数从“数量”改成“位置”', p:'当人们不再问“-3 是多少个东西”，改问“-3 在哪”——数轴出现，0 成了原点，负数是 0 另一边的方向。麻烦消解了。', origin:true},
+      ],
+      closing:'负数难的从来不是计算，是“承认一个比空还少的东西也算数”。你今天觉得理所当然，是因为你继承了别人挣扎一千年才接受的那一步。',
+      spark:'记账（经济）、温度（物理）、海拔（地理）用的是同一个负数——因为它们撞上的是同一种麻烦：如何记录“低于某个基准的那一侧”。'
+    },
+    coord:{
+      title:'负数', sub:'同一个知识点，三层同时在场',
+      coords:[
+        {axis:'意图层 · 人类想干什么', t:'记录“亏欠 / 低于基准”', p:'负数回应的是一种很具体的人类需求：把损失、欠债、下降也变成可计算的东西，而不只是“有多少”。'},
+        {axis:'条件层 · 它依赖什么才可能', t:'要先有“基准点”这个发明', p:'没有 0 作原点、没有数轴这个空间隐喻，负数无处安放。它的出现依赖一整套前置工具先就位。'},
+        {axis:'起点层 · 你此刻卡在哪', t:'你卡的多半是“方向”不是“数”', p:'多数人对 -3 的不适，源于仍把数当“数量”。一旦改用“向左 3 步”来想，障碍当场消失。'},
+      ],
+      closing:'知识记不住，往往不是没讲对，是只在“条件层”讲了定义，没接上你的意图层和此刻的起点。'
+    }
+  },
+
+  '导数': { subject:'数学',
+    chain:{
+      title:'导数', sub:'为了抓住“正在变化的那一瞬间”',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“函数在某点的瞬时变化率 / 切线斜率”', p:'极限定义一摆，符号一推，你照着算就行——但没人告诉你，这串符号当初是为了解决一个让人抓狂的悖论。'},
+        {tier:'撞上的麻烦', t:'“瞬时速度”根本说不清', p:'平均速度好算（路程÷时间）。可“这一瞬间的速度”呢？时间间隔为 0，路程也为 0，0÷0 是什么？速度明明存在，却算不出来。'},
+        {tier:'走不通的路', t:'牛顿用“无穷小”被狠批了一百年', p:'他假设一个“小到几乎是 0、但又不是 0”的量。对手贝克莱讥讽：这是“消失量的鬼魂”。能算对，但讲不清它到底是什么。'},
+        {tier:'让它收敛的突破', t:'不取 0，而是“无限逼近 0”', p:'柯西、魏尔斯特拉斯换了问法：不问“在 0 处等于多少”，问“当间隔越来越小，比值稳定地趋向哪个值”。极限概念让鬼魂落地。', origin:true},
+      ],
+      closing:'导数难，难在它要你接受一种新的提问方式：从“在这一点是多少”转向“在逼近这一点的过程中收敛到多少”。这一步转身，就是微积分的全部秘密。',
+      spark:'瞬时速度（物理）、边际成本（经济）、反应速率（化学）、人口增长率（生物）——全是同一个导数。因为它们问的是同一句话：此刻，它变得有多快？'
+    },
+    growth:{
+      title:'导数', sub:'你其实从小学就在学它，只是没人这么告诉你',
+      layers:[
+        {tier:'原初形态 · 小学', t:'“平均速度”', p:'路程除以时间。你算的是一整段路上的“平均快慢”——这是导数最朴素的祖先：一个比值。'},
+        {tier:'成长形态 · 初中', t:'“一次函数的斜率”', p:'y=kx+b 里的 k，是“x 每增加 1，y 变多少”。变化率第一次被固定成一个数，但只对直线成立。'},
+        {tier:'成长形态 · 高中', t:'“瞬时变化率 / 切线斜率”', p:'曲线上每一点斜率都不同。导数让“斜率”从直线推广到任意曲线的每一个点——同一个东西，长出了处理变化的能力。'},
+        {tier:'成熟形态 · 大学', t:'“微分 / 梯度 / 变分”', p:'从一维推到多维、从函数推到泛函。但内核没变，始终是小学那个比值在不同成熟度上的样子。', origin:true},
+      ],
+      closing:'这四截不是四个知识点，是同一个概念在四个学段的“年龄”。把它们当成互不相干的东西分别背，正是学不会的根源。',
+      spark:'下次卡在“瞬时变化率”，回到小学那句“路程÷时间”——你会发现你早就懂它的灵魂，只是在学它长大后的样子。'
+    }
+  },
+
+  '透视法': { subject:'艺术',
+    fork:{
+      title:'透视法',
+      root:{tier:'回到边界之前的元问题', q:'如何在一个平面上，骗过眼睛、造出“深度”？', p:'文艺复兴时这不是“美术问题”，是一个糅合了几何、光学、心理学的共同难题。从这一处，好几门今天看似无关的学科同时分叉长出。'},
+      branches:[
+        {disc:'数学 / 几何', h:'射影几何', p:'平行线在画面里汇聚于“消失点”——这个反常现象逼出了一门新几何：研究“投影下什么不变”，后来支撑了制图与计算机图形学。'},
+        {disc:'物理 / 光学', h:'成像原理', p:'要画对透视，先得搞懂光怎么沿直线进眼、像怎么在视网膜上形成。暗箱（camera obscura）正是从画家工具变成相机祖先的。'},
+        {disc:'美术 / 绘画', h:'空间再现', p:'布鲁内莱斯基、达·芬奇把几何规则变成笔法。绘画第一次能精确“说谎”，造出可信的三维幻觉。'},
+        {disc:'心理 / 知觉', h:'深度知觉', p:'透视之所以骗得过你，是因为它利用了大脑判断远近的固有线索。这后来长成了认知科学里的知觉研究。'},
+      ],
+      closing:'数学、物理、美术、心理学今天分属四个学院、四栋楼。但在透视法诞生的那一刻，它们还是同一个问题的四个侧面——边界是后来才划上去的。',
+      spark:'所谓“跨学科”，多数时候不是在两门成品学科之间架桥，而是回到它们分家之前的那个共同问题。在那里，桥本来就不需要。'
+    }
+  },
+
+  '熵': { subject:'物理',
+    chain:{
+      title:'熵', sub:'从蒸汽机的“浪费”里被逼出来的概念',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“系统混乱程度的度量 / dS≥0”', p:'一上来就是混乱、无序、热寂，玄之又玄。但熵最初一点都不抽象——它来自一个非常实在的工程懊恼。'},
+        {tier:'撞上的麻烦', t:'蒸汽机为什么永远“吃亏”？', p:'19世纪工程师发现：烧的煤里总有一部分热，无论怎么改进都变不成功，白白流失。这“注定收不回的损耗”是什么？'},
+        {tier:'走不通的路', t:'以为是技术不够好', p:'人们长期以为是机器做得不够精密，再优化就能逼近 100%。卡诺证明：不是手艺问题，是有一道天花板谁也越不过。'},
+        {tier:'让它收敛的突破', t:'给“不可逆的流失”起个名字', p:'克劳修斯把那道天花板量化成一个量，命名为熵。玻尔兹曼再揭示它的微观真相：无序的排列方式远多于有序，所以系统总滑向无序。', origin:true},
+      ],
+      closing:'熵不是先有“宇宙混乱”这个玄学，再下放到机器。恰恰相反：是先有蒸汽机吃亏这件最务实的事，才逼出了后来笼罩整个宇宙的那个概念。',
+      spark:'蒸汽机损耗（工程）、信息不确定性（通信）、生命对抗衰败（生物）——香农定义信息熵时，公式和热力学熵长得几乎一样，因为它们度量的是同一件事：有多少种可能的排列。'
+    },
+    coord:{
+      title:'熵', sub:'同一个知识点，三层同时在场',
+      coords:[
+        {axis:'意图层 · 人类想干什么', t:'想算清“到底浪费了多少”', p:'熵回应的是一个工程焦虑：把“注定收不回的损失”从模糊的懊恼，变成可计算、可预测的量。'},
+        {axis:'条件层 · 它依赖什么才可能', t:'要先接受“热是分子运动”', p:'没有原子论、没有统计的眼光，熵只能停在宏观公式。玻尔兹曼把它接到微观，它才真正讲得通。'},
+        {axis:'起点层 · 你此刻卡在哪', t:'你卡的是“混乱”这个比喻', p:'“无序”是个误导性的日常词。换成“系统能落进的可能排列数”，dS≥0 立刻直观：可能性多的状态，自然更容易撞上。'},
+      ],
+      closing:'熵之所以让人觉得玄，正因为教学只在“条件层”丢给你一个公式，没接上它务实的意图，也没拆掉“混乱”这个挡路的比喻。'
+    }
+  },
+
+  /* ============ 数学 ============ */
+  '零': { subject:'数学',
+    chain:{
+      title:'零', sub:'人类花了几千年才敢把“没有”当成一个数',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“表示没有的数 / 加法单位元”', p:'你三岁就会数 0,以为它和 1、2、3 一样自然。其实在数学史上,0 是最晚、最艰难才被接纳的数之一。'},
+        {tier:'撞上的麻烦', t:'记账时“这一位空着”怎么写？', p:'205 和 25 必须区分。没有一个符号占住空位,整个位值记数法就会崩塌——这是商业账目逼出来的实际需求。'},
+        {tier:'走不通的路', t:'希腊人拒绝它、欧洲怕它', p:'“无”怎么能是“有”?古希腊几何里没有 0 的位置。中世纪欧洲一度禁用,觉得它是异端、是会让算术出鬼的危险符号。'},
+        {tier:'让它收敛的突破', t:'印度人把“空位”升级成“数”', p:'印度数学家做了关键一跃:0 不只是占位的空格,它本身参与运算,能加能减。这一步让代数成为可能。', origin:true},
+      ],
+      closing:'0 难的不是计算,是一个观念突破:承认“什么都没有”这件事本身,也是一个可以拿来运算的对象。',
+      spark:'位值记数(数学)、二进制(计算机)、温度基准(物理)、账目平衡(会计)——全靠 0 这个“基准点 / 空位”的发明撑着。'
+    }
+  },
+  '虚数': { subject:'数学',
+    chain:{
+      title:'虚数', sub:'一个被骂作“想象出来的、不存在的数”',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“i²=-1 / 复数的虚部”', p:'定义一摆,你照着算。但 imaginary 这个名字本身就是当年的嘲讽:一个“想象的、假的”数。'},
+        {tier:'撞上的麻烦', t:'三次方程的真实解,中途要过“负数开方”', p:'求解三次方程时,即使最终答案是普通实数,中间步骤却绕不开 √(-1)。这个“不存在的东西”却能导出正确的真实答案,让人困惑。'},
+        {tier:'走不通的路', t:'当作“无意义的形式游戏”忍着用', p:'数学家长期捏着鼻子用它,把它当成一种过河拆桥的工具,算完就想扔掉,不承认它是真数。'},
+        {tier:'让它收敛的突破', t:'高斯给它一个“位置”：复平面', p:'当把数从一条直线扩展成一个平面、虚数轴垂直于实数轴,i 就成了“旋转90度”的操作。它一下子有了清晰的几何意义。', origin:true},
+      ],
+      closing:'虚数从“假数”翻身,靠的不是算得更熟,是有人给了它一块可以落脚的空间。和负数当年一样:换个空间,荒谬就变成了自然。',
+      spark:'交流电(电工)、信号处理(通信)、量子力学(物理)、流体力学——离开复数几乎寸步难行,因为它天然擅长描述“旋转与波动”。'
+    }
+  },
+  '概率': { subject:'数学',
+    fork:{
+      title:'概率',
+      root:{tier:'回到边界之前的元问题', q:'在结果还没发生、谁也说不准时，如何理性地做选择？', p:'17世纪,这个问题同时压在赌徒、保险商和哲学家头上。从这一处,几门今天看似无关的学科一起分叉长出。'},
+      branches:[
+        {disc:'数学', h:'概率论', p:'帕斯卡和费马为了算清“赌局中途散伙,赌注怎么分”,写下往来书信,意外奠定了一整门数学。'},
+        {disc:'经济 / 金融', h:'保险与精算', p:'把“某人某年会不会出事”变成可定价的风险。整个保险业建立在“个体不可测、群体有规律”之上。'},
+        {disc:'物理', h:'统计力学', p:'单个分子的运动无法追踪,但海量分子的整体行为可以用概率精确预言——气体定律由此而来。'},
+        {disc:'哲学 / 逻辑', h:'归纳与确证', p:'我们凭什么相信“太阳明天还会升起”?概率成了刻画“合理信念有多强”的工具,长成了认识论的一支。'},
+      ],
+      closing:'赌桌、保险单、气体、哲学思辨——今天分属四个世界。但在“如何与不确定共处”这个问题诞生时,它们本是同一道难题的四个出口。',
+      spark:'跨学科不是给概率论“找应用”,而是回到那个比所有学科都更早的共同困境:面对未知,如何不靠运气地下注。'
+    }
+  },
+
+  /* ============ 物理 / 化学 ============ */
+  '万有引力': { subject:'物理',
+    chain:{
+      title:'万有引力', sub:'把“苹果落地”和“月亮不掉下来”看成同一件事',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“F=GMm/r²”', p:'公式背下来就能算。但这条公式抹掉了人类思想史上最大胆的一次合并。'},
+        {tier:'撞上的麻烦', t:'天上和地上,似乎是两套法则', p:'两千年来人们默认:地上的东西会落,天上的星辰永恒运转,二者井水不犯河水,归两套完全不同的道理管。'},
+        {tier:'走不通的路', t:'只描述、不追问“为什么”', p:'开普勒精确算出了行星轨道是椭圆,但他不知道为什么。规律有了,背后的原因还是空白。'},
+        {tier:'让它收敛的突破', t:'牛顿说：是同一种力', p:'让苹果落地的力,和拽住月亮不让它飞走的力,是同一种力。天与地的界限被一笔抹掉——宇宙第一次成为一个统一的整体。', origin:true},
+      ],
+      closing:'牛顿的伟大不在公式,在那次合并:他敢把最普通的“东西会掉”和最神圣的“天体运行”当成同一回事。统一,是物理学最高的雄心。',
+      spark:'潮汐(地理)、卫星轨道(航天)、星系结构(天文)、配重设计(工程)——都是这一条力的不同现身。'
+    },
+    coord:{
+      title:'万有引力', sub:'同一个知识点，三层同时在场',
+      coords:[
+        {axis:'意图层 · 人类想干什么', t:'想用一条道理解释整个宇宙', p:'它回应的是一种近乎信仰的渴望:天上地下,能不能由同一套法则统辖,而不是各管各的。'},
+        {axis:'条件层 · 它依赖什么才可能', t:'要先有微积分和精确天文数据', p:'没有第谷几十年的观测、没有牛顿自己发明的微积分工具,这条定律算不出来也证不了。'},
+        {axis:'起点层 · 你此刻卡在哪', t:'你卡的是“为什么月亮不掉下来”', p:'其实它一直在“掉”——只是同时横向飞得够快,掉的路径正好绕着地球。把“落”和“绕”看成一回事,豁然开朗。'},
+      ],
+      closing:'万有引力被讲成一条要背的公式,是因为教学跳过了它最动人的意图层:那是人类第一次相信宇宙是统一的。'
+    }
+  },
+  '元素周期表': { subject:'化学',
+    chain:{
+      title:'元素周期表', sub:'一张靠“留空白”赌赢了的表',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“按原子序数排列的元素分类表”', p:'墙上挂着,你以为它是把已知元素整理整齐而已。其实它最了不起的地方,是它敢预言还没被发现的东西。'},
+        {tier:'撞上的麻烦', t:'几十种元素,杂乱无章', p:'19世纪化学家手里一堆元素,性质各异,找不到规律,像一盒打翻的零件,不知道该怎么归类。'},
+        {tier:'走不通的路', t:'只按重量单纯排队', p:'有人试着按原子量从小到大排,但总有几个元素“不守规矩”,排出来性质对不上,规律若隐若现却抓不住。'},
+        {tier:'让它收敛的突破', t:'门捷列夫为“还没出生的元素”留座', p:'他发现性质会周期性重复,于是大胆排表,并在该有规律却没元素的地方留空,断言“这里将来会找到一种元素,性质如下”。后来真的一个个被找到。', origin:true},
+      ],
+      closing:'周期表的伟大不在“整理”,在“留白”。一个分类系统强到能预言尚不存在之物——这是它从一张表升格为科学定律的瞬间。',
+      spark:'元素性质(化学)、原子结构(物理)、新材料设计(工程)、生命必需元素(生物)——同一张表是它们共同的地图。'
+    }
+  },
+  '光合作用': { subject:'生物',
+    coord:{
+      title:'光合作用', sub:'同一个知识点，三层同时在场',
+      coords:[
+        {axis:'意图层 · 人类想搞清什么', t:'植物不吃东西，靠什么长大？', p:'它回应一个古老困惑:一棵树长成参天大物,那些“物质”是从哪来的?直觉以为是从土里长出来的。'},
+        {axis:'条件层 · 它依赖什么才被揭开', t:'要先能称量气体、识别二氧化碳', p:'没有近代化学对气体的辨认和称量,人们根本想不到:树的重量主要来自空气里的碳,而不是脚下的土。'},
+        {axis:'起点层 · 你此刻卡在哪', t:'你卡在“空气怎么能变成木头”', p:'反直觉之处在于:无形的气体被捕获、固定成有形的固体。一旦接受“碳来自空气”,整个过程就通了。'},
+      ],
+      closing:'光合作用被背成一个化学方程式,丢掉了它最震撼的内核:你眼前的木头、煤、粮食,绝大部分是被“抓下来的空气”。'
+    }
+  },
+
+  /* ============ 语言 / 文学 ============ */
+  '标点符号': { subject:'语言文学',
+    chain:{
+      title:'标点符号', sub:'最初是为了“在哪儿换气”而发明的',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“分隔句子、表示语气的符号”', p:'语法书里它是一套要遵守的规则。但标点最早跟语法毫无关系,跟你的呼吸有关。'},
+        {tier:'撞上的麻烦', t:'古代文字连成一片，没法念', p:'早期文本词与词、句与句全连在一起,没有空格没有断点。当众朗读时,念的人不知道哪里该停、哪里该提气。'},
+        {tier:'走不通的路', t:'全靠死记和口传', p:'只能靠朗读者事先把文章背熟、标好记号,换个人就抓瞎。文本无法独立于“会念的人”而存在。'},
+        {tier:'让它收敛的突破', t:'抄经员标出“停顿的长短”', p:'中世纪抄写员为方便诵读,用点的高低标注停顿长短:短停、中停、长停。这套“呼吸记号”后来才慢慢变成逗号、分号、句号。', origin:true},
+      ],
+      closing:'标点不是语法强加的规则,是“声音留在纸上的影子”。你写下一个逗号,其实是在替读者安排一次呼吸。',
+      spark:'断句节奏(文学)、代码语法(编程)、乐谱休止符(音乐)——本质相通:都是把“看不见的停顿与边界”变成看得见的记号。'
+    }
+  },
+  '字母表': { subject:'语言文学',
+    fork:{
+      title:'字母表',
+      root:{tier:'回到边界之前的元问题', q:'如何用尽量少的符号，记下人能说出的一切话？', p:'这个问题横跨语言、商业和技术。从象形到字母的这一跃,牵动了好几条文明线索同时分叉。'},
+      branches:[
+        {disc:'语言学', h:'表音文字', p:'不再为每个词画一个图,而是为每个“音”定一个符号。几十个字母就能拼出无穷的词——这是符号经济学的胜利。'},
+        {disc:'历史 / 商业', h:'腓尼基商人的账本', p:'字母表的普及,靠的是地中海商人。做生意要快速记账,画图太慢,简单字母最实用。商业需求推动了文字革命。'},
+        {disc:'计算机', h:'编码', p:'“用有限符号表达无限内容”这个思路,直通二进制:0 和 1 两个符号,就能编码一切文字、图像、声音。'},
+        {disc:'认知科学', h:'阅读脑', p:'字母表改变了大脑。识别拼音文字与识别象形文字,动用的脑区不同——文字形态反过来重塑了人的认知。'},
+      ],
+      closing:'字母表诞生时,它既是语言事件,又是商业事件,又是技术事件。今天分给三个学院的东西,当初是同一次突破的几个侧面。',
+      spark:'“用有限拼出无限”——这个字母表的核心思想,是后来一切编码、压缩、数字化的远祖。'
+    }
+  },
+  '诗的押韵': { subject:'语言文学',
+    coord:{
+      title:'诗的押韵', sub:'同一个知识点，三层同时在场',
+      coords:[
+        {axis:'意图层 · 人类想干什么', t:'让话好记、好传', p:'押韵最初不为美,为实用:在没有文字或文字稀缺的年代,押韵的句子才背得住、传得远。史诗都押韵,是为了能被口口相传。'},
+        {axis:'条件层 · 它依赖什么', t:'依赖语言的语音结构', p:'一种语言能押什么韵、押韵难不难,由它的音节和声调决定。汉语声调丰富,英语重音为主,押韵规则因此完全不同。'},
+        {axis:'起点层 · 你此刻卡在哪', t:'你以为押韵是“锦上添花”', p:'其实押韵是“记忆的钩子”。理解了它的助记起源,你再读古诗,会听见文字背后那套为口传而生的声音设计。'},
+      ],
+      closing:'押韵被当成修辞技巧来教,丢掉了它的本职:在文字昂贵的年代,它是人类对抗遗忘的技术。'
+    }
+  },
+
+  /* ============ 历史 / 社科 ============ */
+  '货币': { subject:'历史社科',
+    chain:{
+      title:'货币', sub:'为了绕开“以物易物的死结”而生',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“一般等价物 / 价值尺度”', p:'经济学定义抽象而完整。但货币的诞生,源自一个非常具体、非常烦人的死结。'},
+        {tier:'撞上的麻烦', t:'“需求的双重巧合”', p:'我有米想换鞋,可做鞋的人不缺米、只想要肉。以物易物要求双方恰好都想要对方的东西——这种巧合极难凑齐,交易经常卡死。'},
+        {tier:'走不通的路', t:'靠记账和人情勉强维持', p:'小村落里可以靠“我先欠着、日后再还”的人情网络周转。但人一多、陌生人一多,这套信任网络立刻不够用。'},
+        {tier:'让它收敛的突破', t:'找一个“谁都肯收”的中间物', p:'贝壳、金属、铸币——只要大家都相信别人也会收它,它就能当交易的中介。死结解开:你不必想要我的米,只要想要钱。', origin:true},
+      ],
+      closing:'货币的本质不是金银,是“共同的信任”。它能成立,只因为每个人都相信下一个人也会接受它。这是一种集体的自我实现。',
+      spark:'物价(经济)、信用(金融)、信任机制(社会学)、区块链共识(计算机)——追到根上,都是同一个问题:陌生人之间如何不靠人情完成交换。'
+    }
+  },
+  '时区': { subject:'历史社科',
+    chain:{
+      title:'时区', sub:'是火车逼出来的发明，不是自古就有',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“全球划分的24个标准时间区”', p:'地图上一道道竖线,看着天经地义。其实在150年前,“时区”这个概念根本不存在。'},
+        {tier:'撞上的麻烦', t:'每个城市各有各的“正午”', p:'过去每座城镇按当地太阳定时,正午就是太阳最高时。邻城之间差几分钟,本来无所谓——因为没人能那么快从这城到那城。'},
+        {tier:'走不通的路', t:'火车时刻表彻底乱套', p:'铁路出现后,列车横跨多个城镇,每镇时间都不同,时刻表无法编、列车会相撞。“各地各时”从田园诗变成了致命问题。'},
+        {tier:'让它收敛的突破', t:'铁路公司强行统一时间', p:'为了让火车跑起来,铁路公司联合规定大片区域用同一个时间。这套“铁路时间”后来才被各国采纳,变成全球时区。', origin:true},
+      ],
+      closing:'时区不是天文学的产物,是交通技术的产物。是“人能快速移动”这件事,逼着人类重新发明了“现在几点”。',
+      spark:'技术(铁路)、天文(经度)、政治(国界与夏令时)、全球协作(互联网时间戳)——时区是它们妥协出来的人造约定,不是自然给定的。'
+    }
+  },
+  '民主': { subject:'历史社科',
+    fork:{
+      title:'民主',
+      root:{tier:'回到边界之前的元问题', q:'一群人意见不合，又必须共同决定，该怎么办？', p:'这个问题不属于任何单一学科。从它出发,政治、哲学、数学甚至生物都各自长出了一支。'},
+      branches:[
+        {disc:'政治 / 历史', h:'公民议事', p:'古希腊城邦的公民直接投票。民主最早是一种很具体的操作:把决定权从一个人手里,分到许多人手里。'},
+        {disc:'哲学', h:'正当性的来源', p:'凭什么多数人说了算?少数人的权利怎么办?民主逼出了关于“权力为何正当”的持久追问。'},
+        {disc:'数学 / 博弈论', h:'投票悖论', p:'阿罗证明:没有任何一种投票规则能同时满足所有公平条件。民主在数学上居然是“不完美”的——这是惊人的发现。'},
+        {disc:'生物 / 群体行为', h:'集体决策', p:'蜜蜂选新巢、鸟群转向,也是“无中心的多数协调”。民主式决策在自然界早有原型。'},
+      ],
+      closing:'议事厅、哲学思辨、数学定理、蜂群——今天属于四个领域。但它们都在回答同一个最朴素的难题:许多人,如何共同决定。',
+      spark:'真正的跨学科,是看见“政治制度”和“蜂群选巢”在结构上竟是同一个问题——回到分家之前,墙就消失了。'
+    }
+  },
+
+  /* ============ 艺术 / 音乐 ============ */
+  '和声': { subject:'艺术',
+    chain:{
+      title:'和声', sub:'好听与否，背后是一道物理题',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“多个音同时发声的协和规则”', p:'乐理书给你一堆“可以这样、不能那样”的规则。但这些规则不是凭空规定的,底下藏着振动的数学。'},
+        {tier:'撞上的麻烦', t:'为什么有些音一起响很美，有些刺耳？', p:'人耳对某些音的组合天然觉得和谐,某些觉得紧张难受。这“好听”到底是主观偏好,还是有客观原因?'},
+        {tier:'走不通的路', t:'只当成口味问题', p:'若把和谐纯归于习惯和喜好,就无法解释为何不同文化都偏爱某些音程,也没法系统地作曲。'},
+        {tier:'让它收敛的突破', t:'毕达哥拉斯发现“简单整数比”', p:'两根弦长度成简单整数比(如2:1、3:2)时,一起响就和谐。和声的“美”被还原成频率的数学关系——艺术与数学在此握手。', origin:true},
+      ],
+      closing:'和声的规则不是作曲家拍脑袋定的,是耳朵在替我们做物理实验。你觉得一个和弦“美”,是你的听觉在欣赏一组干净的整数比。',
+      spark:'弦振动(物理)、整数比(数学)、协和感(心理声学)、调律(乐器制造)——一个和弦同时是这四门学科的交汇点。'
+    }
+  },
+  '色彩': { subject:'艺术',
+    fork:{
+      title:'色彩',
+      root:{tier:'回到边界之前的元问题', q:'“颜色”到底在哪里——在物体上，在光里，还是在眼睛里？', p:'这个问题把物理、生物、艺术和心理学全卷了进来。从它分叉,长出好几门彼此独立的学问。'},
+      branches:[
+        {disc:'物理', h:'光的波长', p:'牛顿用棱镜把白光分成七色,证明颜色不在物体上,而是不同波长的光。颜色第一次有了客观刻度。'},
+        {disc:'生物', h:'视锥细胞', p:'眼睛里只有三种感色细胞。所有缤纷色彩,是大脑对这三种信号的混合解读——颜色一半在视网膜里造出来。'},
+        {disc:'艺术', h:'调色与对比', p:'画家不管波长,他们摸索出另一套规律:补色、冷暖、并置。同样的红,放在不同背景上看起来就不一样。'},
+        {disc:'心理学', h:'颜色知觉与情绪', p:'红色让人紧张、蓝色让人平静——颜色携带情绪与文化含义,这又是另一层不在光里、也不在眼里的东西。'},
+      ],
+      closing:'问“颜色在哪”,物理学家、生物学家、画家、心理学家会指向四个不同地方。他们都没错——因为颜色本就是这四层叠出来的一件事。',
+      spark:'颜色最好地说明了:学科边界是我们为了分工划的线。一个红苹果的“红”,从不知道自己该归哪个系。'
+    }
+  },
+
+  /* ============ 计算机 / 逻辑 ============ */
+  '算法': { subject:'计算机',
+    coord:{
+      title:'算法', sub:'同一个知识点，三层同时在场',
+      coords:[
+        {axis:'意图层 · 人类想干什么', t:'把“怎么做”说清到机器也能照办', p:'算法回应的是:如何把一件事的步骤,拆解、固定到任何不思考的执行者(人或机器)照着做就一定能完成。'},
+        {axis:'条件层 · 它依赖什么', t:'依赖“步骤可被精确描述”', p:'不是所有事都能算法化。能写成算法的前提是:它能被拆成有限、明确、无歧义的步骤。这本身是个很强的假设。'},
+        {axis:'起点层 · 你此刻卡在哪', t:'你以为算法是“电脑的东西”', p:'其实你查字典、列竖式做除法、按菜谱做菜,都是在执行算法。算法比计算机古老得多——它先是人的方法,后来才交给机器。'},
+      ],
+      closing:'算法被当成编程概念来教,丢了它最朴素的身份:它就是“把做法说清楚”这件事本身,人类做了几千年。'
+    }
+  },
+  '逻辑': { subject:'计算机',
+    chain:{
+      title:'逻辑', sub:'为了在吵架中分出“谁的推理站得住”',
+      layers:[
+        {tier:'课本交给你的结晶', t:'“正确推理的形式规则”', p:'符号、真值表、三段论,看着枯燥。但逻辑最初是热气腾腾的——它生于辩论场。'},
+        {tier:'撞上的麻烦', t:'两个人都振振有词，谁对？', p:'古希腊辩论盛行,人人能说会道。问题来了:有些话听着有理其实是诡辩。怎么判断一段推理是真站得住,还是只是嘴皮子利索?'},
+        {tier:'走不通的路', t:'只比谁更能言善辩', p:'若只看说服力,真理就输给口才。需要一种与内容无关、只看“形式”的标准,来判定推理本身合不合法。'},
+        {tier:'让它收敛的突破', t:'亚里士多德抽出“推理的骨架”', p:'他发现对错可以脱离具体内容,只看结构:“所有A是B,所有B是C,故所有A是C”——不管A、B、C是什么,这个骨架永远成立。逻辑诞生了。', origin:true},
+      ],
+      closing:'逻辑的突破在于“抽掉内容,只留骨架”。一旦推理的对错可以与话题无关地判定,人类才第一次有了不靠权威、不靠口才的公共裁判。',
+      spark:'数学证明、法律论证、程序判断、哲学思辨——表面天差地别,底层共享同一套“形式有效性”的骨架。'
+    }
+  }
+};
+
+/* ---------------- 渲染 ---------------- */
+const $ = s => document.querySelector(s);
+const canvas = $('#canvas');
+
+function renderEngines(){
+  $('#engineGrid').innerHTML = ENGINES.map(e=>`
+    <button class="engine ${e.id===activeEngine?'active':''}" data-id="${e.id}">
+      <span class="n">${e.n}</span>
+      <h3>${e.title}</h3>
+      <p>${e.desc}</p>
+    </button>`).join('');
+  document.querySelectorAll('.engine').forEach(b=>{
+    b.onclick=()=>{ activeEngine=b.dataset.id; renderEngines();
+      const t=$('#topic').value.trim(); if(t) go(t); };
+  });
+}
+
+function renderChips(){
+  const ex=['负数','导数','虚数','万有引力','熵','光合作用','元素周期表','货币','民主','透视法','色彩','和声','标点符号','逻辑','算法','时区'];
+  $('#chips').innerHTML = '<span style="font-family:var(--mono);font-size:11px;color:var(--muted);align-self:center;letter-spacing:.1em">试试：</span>'+
+    ex.map(t=>`<button class="chip" data-t="${t}">${t}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.onclick=()=>{ $('#topic').value=c.dataset.t; go(c.dataset.t); };
+  });
+}
+
+function engineTag(id){return {chain:'发生链还原',fork:'学科分叉',growth:'成长轨迹',coord:'三层坐标'}[id];}
+const ENGINE_IDS=['chain','fork','growth','coord'];
+// 解析某知识点的学科：优先预置标签，其次本次生成结果，最后归为“其它”
+function resolveSubject(topic, data){
+  if(PRESET[topic] && PRESET[topic].subject) return PRESET[topic].subject;
+  if(data && data.subject) return String(data.subject).trim();
+  return '其它';
+}
+
+function strataHTML(d){
+  return `
+  <div class="result-head"><h2>${d.title}</h2><span class="mode-tag">${engineTag(activeEngine)}</span></div>
+  <div class="result-sub">${d.sub||''}</div>
+  <div class="strata">
+    ${d.layers.map((l,i)=>`
+      <div class="layer ${l.origin?'origin':''}" style="animation-delay:${i*.08}s">
+        <span class="node"></span>
+        <div class="layer-card">
+          <div class="tier">${l.origin?'<b>突破 ▸ 它在这里诞生</b>':l.tier}</div>
+          <h4>${l.t}</h4><p>${l.p}</p>
+        </div>
+      </div>`).join('')}
+  </div>
+  ${d.closing?`<div class="closing">${d.closing}</div>`:''}
+  ${d.spark?`<div class="spark"><b>打通的裂缝 ▸</b> ${d.spark}</div>`:''}`;
+}
+
+function forkHTML(d){
+  return `
+  <div class="result-head"><h2>${d.title}</h2><span class="mode-tag">${engineTag('fork')}</span></div>
+  <div class="result-sub">回到学科分家之前的那个共同问题</div>
+  <div class="fork-root">
+    <div class="tier">${d.root.tier}</div>
+    <h4>“${d.root.q}”</h4><p>${d.root.p}</p>
+  </div>
+  <div class="fork-stem"></div>
+  <div class="branches">
+    ${d.branches.map((b,i)=>`
+      <div class="branch" style="animation-delay:${i*.08}s">
+        <div class="disc">${b.disc}</div><h5>${b.h}</h5><p>${b.p}</p>
+      </div>`).join('')}
+  </div>
+  ${d.closing?`<div class="closing">${d.closing}</div>`:''}
+  ${d.spark?`<div class="spark"><b>打通的裂缝 ▸</b> ${d.spark}</div>`:''}`;
+}
+
+function coordHTML(d){
+  return `
+  <div class="result-head"><h2>${d.title}</h2><span class="mode-tag">${engineTag('coord')}</span></div>
+  <div class="result-sub">${d.sub||''}</div>
+  <div class="coords">
+    ${d.coords.map((c,i)=>`
+      <div class="coord" style="animation-delay:${i*.1}s">
+        <div class="axis">${c.axis}</div><h4>${c.t}</h4><p>${c.p}</p>
+      </div>`).join('')}
+  </div>
+  ${d.closing?`<div class="closing">${d.closing}</div>`:''}`;
+}
+
+function render(d){
+  if(activeEngine==='fork') canvas.innerHTML=forkHTML(d);
+  else if(activeEngine==='coord') canvas.innerHTML=coordHTML(d);
+  else canvas.innerHTML=strataHTML(d);
+  recordTrail(d.title, activeEngine, resolveSubject(d.title, d));
+  canvas.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ---------------- 学习足迹（本地存储，沙箱内自动退回内存） ----------------
+   数据模型 v2：每个知识点一条记录
+   { topic, subject, engines:[已挖过的引擎], level:0|1|2, ts }
+   level: 0 刚接触 · 1 在学 · 2 已掌握 */
+const TRAIL_KEY='suyuan.trail.v2';
+let trail=[];
+let memStore=null;
+const LEVELS=[
+  {k:0,label:'刚接触',cls:'lv0'},
+  {k:1,label:'在学',  cls:'lv1'},
+  {k:2,label:'已掌握',cls:'lv2'},
+];
+const SUBJECT_ORDER=['数学','物理','化学','生物','语言文学','历史社科','艺术','计算机','哲学','其它'];
+
+function storeGet(){
+  if(memStore!==null) return memStore;
+  try{ const v=localStorage.getItem(TRAIL_KEY); return v?JSON.parse(v):[]; }
+  catch(e){ memStore=[]; return memStore; }
+}
+function storeSet(arr){
+  trail=arr;
+  if(memStore!==null){ memStore=arr; return; }
+  try{ localStorage.setItem(TRAIL_KEY,JSON.stringify(arr)); }
+  catch(e){ memStore=arr; }
+}
+
+function recordTrail(topic, engine, subject){
+  trail = storeGet();
+  let rec = trail.find(x=>x.topic===topic);
+  if(rec){
+    if(!rec.engines.includes(engine)) rec.engines.push(engine);
+    rec.subject = rec.subject || subject;
+    rec.ts = Date.now();
+    rec.last = engine;
+  }else{
+    rec = {topic, subject:subject||'其它', engines:[engine], last:engine, level:0, ts:Date.now()};
+    trail.push(rec);
+  }
+  if(trail.length>120) trail = trail.slice(-120);
+  storeSet(trail);
+  renderTrail();
+}
+
+function setLevel(topic, level){
+  trail = storeGet();
+  const rec = trail.find(x=>x.topic===topic);
+  if(rec){ rec.level=level; storeSet(trail); renderTrail(); }
+}
+function delTopic(topic){
+  trail = storeGet().filter(x=>x.topic!==topic);
+  storeSet(trail); renderTrail();
+}
+
+function renderTrail(){
+  trail = storeGet();
+  const sec=$('#trailSection');
+  if(!trail.length){ sec.hidden=true; return; }
+  sec.hidden=false;
+
+  const total=trail.length;
+  const mastered=trail.filter(x=>x.level===2).length;
+  $('#trailCount').textContent = `${total} 个 · 已掌握 ${mastered}`;
+
+  // 按学科分组
+  const groups={};
+  trail.forEach(x=>{ (groups[x.subject]=groups[x.subject]||[]).push(x); });
+  const subjects = Object.keys(groups).sort((a,b)=>{
+    const ia=SUBJECT_ORDER.indexOf(a), ib=SUBJECT_ORDER.indexOf(b);
+    return (ia<0?99:ia)-(ib<0?99:ib);
+  });
+
+  $('#trailList').innerHTML = subjects.map(sub=>{
+    const items = groups[sub].slice().sort((a,b)=>b.ts-a.ts);
+    return `
+    <div class="trail-group">
+      <div class="tg-head"><span class="tg-name">${sub}</span><span class="tg-num">${items.length}</span></div>
+      <div class="tg-items">
+        ${items.map(x=>`
+          <div class="trail-item lv-${x.level}" data-topic="${encodeURIComponent(x.topic)}">
+            <span class="ti-topic" data-open="1">${x.topic}</span>
+            <span class="ti-engs">${x.engines.map(engineTag).join(' · ')}</span>
+            <span class="ti-levels">
+              ${LEVELS.map(l=>`<button class="ti-lv ${l.cls} ${x.level===l.k?'on':''}" data-lv="${l.k}" title="${l.label}">${l.label}</button>`).join('')}
+            </span>
+            <span class="ti-x" data-del="1" title="删除">×</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // 事件绑定
+  $('#trailList').querySelectorAll('.trail-item').forEach(el=>{
+    const topic=decodeURIComponent(el.dataset.topic);
+    const rec=trail.find(x=>x.topic===topic);
+    el.querySelector('[data-open]').onclick=()=>{
+      if(rec){ activeEngine=rec.last||rec.engines[0]; renderEngines(); }
+      $('#topic').value=topic; go(topic);
+    };
+    el.querySelectorAll('.ti-lv').forEach(b=>{
+      b.onclick=e=>{ e.stopPropagation(); setLevel(topic, +b.dataset.lv); };
+    });
+    el.querySelector('.ti-x').onclick=e=>{ e.stopPropagation(); delTopic(topic); };
+  });
+}
+
+$('#trailClear').onclick=()=>{ storeSet([]); renderTrail(); };
+
+
+
+function showDigging(){
+  canvas.innerHTML=`<div class="digging">
+    <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+    <p>正在把「${$('#topic').value||'…'}」挖回发生现场…</p></div>`;
+}
+function showError(msg){
+  canvas.innerHTML=`<div class="err"><b>开挖中断 ▸</b> ${msg}</div>`;
+}
+
+/* ---------------- 主流程 ---------------- */
+async function go(topic){
+  topic=(topic||'').trim();
+  if(!topic) return;
+
+  // 预置命中当前引擎 → 直接渲染
+  const hit = PRESET[topic];
+  if(hit && hit[activeEngine]){ render(hit[activeEngine]); return; }
+
+  // 该知识点是预置样例，但当前引擎没有预置版本
+  if(hit && !isConnected()){
+    const has = Object.keys(hit).filter(k=>ENGINE_IDS.includes(k)).map(engineTag).join(' / ');
+    canvas.innerHTML=`<div class="err"><b>「${topic}」暂无「${engineTag(activeEngine)}」的预置版本 ▸</b> 它已备好：${has}。换一个引擎即可查看，或连接实时生成对它开挖。</div>`;
+    return;
+  }
+
+  // 非预置知识点，且未连接
+  if(!isConnected()){
+    canvas.innerHTML=`<div class="err"><b>演示模式 ▸</b> 「${topic}」不在预置样例中。点右上角「连接实时生成」后，任意知识点都能实时开挖。预置样例可直接点：负数 / 导数 / 透视法 / 熵。</div>`;
+    return;
+  }
+
+  // 实时生成
+  showDigging();
+  try{
+    const data = await generate(topic, activeEngine);
+    render(data);
+  }catch(err){
+    showError(err.message||'生成失败，请检查 API Key 或网络。');
+  }
+}
+
+/* ---------------- DeepSeek 实时生成 ----------------
+   提示词内置"回到发生现场"教学法，要求严格 JSON 输出。 */
+function buildPrompt(topic, engine){
+  const base = `你是一位"发生现场"教学法专家。你的铁律：不交付现成结论，而是把知识点还原回它诞生的过程，让学习者站在"边界尚未形成、东西正在长出来"的位置上理解它。语言面向通用学习者，平实、具体、有画面感，禁止空泛套话。只输出 JSON，不要任何额外文字、不要markdown代码块。除下方要求的字段外，JSON 顶层必须额外包含一个 "subject" 字段，取值为该知识点最主要归属的学科，只能从以下之一中选：数学、物理、化学、生物、语言文学、历史社科、艺术、计算机、哲学、其它。`;
+
+  const schemas = {
+    chain:`针对知识点「${topic}」，还原它的发生链。输出JSON：
+{"title":"${topic}","sub":"一句话点出它诞生时的核心张力",
+"layers":[
+{"tier":"课本交给你的结晶","t":"通常的标准定义（加引号）","p":"指出这个定义抹掉了什么发生过程"},
+{"tier":"撞上的麻烦","t":"人类当初遇到的具体问题","p":"用具体场景说清这个麻烦"},
+{"tier":"走不通的路","t":"曾经的错误尝试或长期障碍","p":"为什么走不通"},
+{"tier":"让它收敛的突破","t":"关键的认知转身","p":"哪一步突破让它成型","origin":true}],
+"closing":"一句穿透性的话，点出这个知识点真正难在哪",
+"spark":"以'X（学科）、Y（学科）'的形式，指出哪些不同学科共享这同一个知识点，因为它们撞上同一种麻烦"}`,
+
+    fork:`针对「${topic}」，回到它所属的、学科边界尚未形成的"元问题"，展示多门学科如何从这一处分叉。输出JSON：
+{"title":"${topic}",
+"root":{"tier":"回到边界之前的元问题","q":"那个跨学科的共同问题（一句话，疑问句）","p":"说明这在当时不是单一学科问题，而是几门学科共同的难题"},
+"branches":[{"disc":"学科名","h":"该学科从中长出的具体分支","p":"如何分叉出来的"}（3到4个不同学科）],
+"closing":"点出这些学科今天虽分属不同领域，但在该知识点诞生时本是同一问题的不同侧面",
+"spark":"一句关于'真正的跨学科是回到分家之前'的洞见"}`,
+
+    growth:`针对「${topic}」，展示它作为同一个概念贯穿不同学段的成长轨迹（不是不同知识点，是同一棵树在长大）。输出JSON：
+{"title":"${topic}","sub":"一句话说明它从小就在，只是没被这样讲过",
+"layers":[
+{"tier":"原初形态 · 小学（或最早接触）","t":"它最朴素的祖先形态","p":"说明"},
+{"tier":"成长形态 · 初中","t":"长大一截后的样子","p":"说明"},
+{"tier":"成长形态 · 高中","t":"再长大一截","p":"说明"},
+{"tier":"成熟形态 · 大学","t":"成熟态，但内核未变","p":"说明内核与最初一致","origin":true}],
+"closing":"点出这几截是同一概念的不同'年龄'，分开背正是学不会的根源",
+"spark":"给学习者一句可操作的话：卡住时回到最早那一截"}`,
+
+    coord:`针对「${topic}」，把它同时放回三层坐标来理解。输出JSON：
+{"title":"${topic}","sub":"同一个知识点，三层同时在场",
+"coords":[
+{"axis":"意图层 · 人类想干什么","t":"它回应的人类意图","p":"说明"},
+{"axis":"条件层 · 它依赖什么才可能","t":"它出现所依赖的前置条件","p":"说明"},
+{"axis":"起点层 · 你此刻卡在哪","t":"学习者最常见的认知卡点","p":"如何跨过"}],
+"closing":"点出知识记不住，往往是只在条件层讲了定义，没接上意图层与学习者的起点"}`
+  };
+  return base+'\n\n'+schemas[engine];
+}
+
+async function generate(topic, engine){
+  const payload = {
+    messages:[{role:'user',content:buildPrompt(topic,engine)}],
+    temperature:0.7
+  };
+  let res;
+  if(conn.mode==='key'){
+    // 浏览器直连 DeepSeek（最省事，可能受 CORS 限制）
+    res = await fetch('https://api.deepseek.com/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+conn.key},
+      body:JSON.stringify({model:'deepseek-chat',response_format:{type:'json_object'},...payload})
+    });
+  }else{
+    // 经代理（密钥在服务器端，model/response_format 由代理补齐）
+    res = await fetch(conn.proxy,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+  }
+  if(!res.ok){
+    if(res.status===401) throw new Error('鉴权失败：API Key 无效，或代理服务器未配置好密钥。');
+    if(conn.mode==='key')
+      throw new Error('DeepSeek 返回错误（'+res.status+'）。浏览器直连常被跨域拦截，建议改用代理地址（见 proxy 文件夹）。');
+    throw new Error('代理返回错误（'+res.status+'）。请检查代理地址是否正确、服务器是否已配置 DEEPSEEK_API_KEY。');
+  }
+  const j = await res.json();
+  let txt = j.choices?.[0]?.message?.content || '';
+  txt = txt.replace(/```json|```/g,'').trim();
+  let data;
+  try{ data = JSON.parse(txt); }
+  catch(e){ throw new Error('生成内容解析失败，请重试一次。'); }
+  return data;
+}
+
+/* ---------------- 连接弹窗 ---------------- */
+function refreshKeyUI(){
+  const on = isConnected();
+  $('#keyDot').classList.toggle('on',on);
+  $('#keyLabel').textContent = on?'已连接 · 实时生成':'连接实时生成';
+  $('#footMode').textContent = on
+    ? (conn.mode==='key'?'实时生成模式 · 直连 DeepSeek':'实时生成模式 · 经代理')
+    : '演示模式 · 预置精选样例';
+}
+// 分段切换
+document.querySelectorAll('.seg-btn').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.seg-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const m=b.dataset.mode;
+    $('#paneProxy').hidden = m!=='proxy';
+    $('#paneKey').hidden   = m!=='key';
+  };
+});
+$('#keyBtn').onclick=()=>{
+  $('#proxyInput').value=conn.proxy;
+  $('#keyInput').value=conn.key;
+  $('#modalBg').classList.add('show');
+};
+$('#keyCancel').onclick=()=>$('#modalBg').classList.remove('show');
+$('#modalBg').onclick=e=>{ if(e.target===$('#modalBg')) $('#modalBg').classList.remove('show'); };
+$('#keySave').onclick=()=>{
+  const activeMode = document.querySelector('.seg-btn.active').dataset.mode;
+  conn.mode = activeMode;
+  conn.proxy = $('#proxyInput').value.trim();
+  conn.key   = $('#keyInput').value.trim();
+  refreshKeyUI(); $('#modalBg').classList.remove('show');
+};
+
+/* ---------------- bind ---------------- */
+$('#digBtn').onclick=()=>go($('#topic').value);
+$('#topic').addEventListener('keydown',e=>{ if(e.key==='Enter') go($('#topic').value); });
+
+renderEngines();
+renderChips();
+refreshKeyUI();
+renderTrail();
+</script>
+</body>
+</html>

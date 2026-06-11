@@ -1,0 +1,12 @@
+{
+  "name": "suyuan",
+  "version": "1.0.0",
+  "description": "溯源 · 回到知识的发生现场",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

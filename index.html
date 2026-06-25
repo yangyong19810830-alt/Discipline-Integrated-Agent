@@ -56,14 +56,23 @@
   }
   .brand .glyph::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--ink)}
   .brand small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
-  .key-btn{
-    font-family:var(--mono);font-size:12px;color:var(--muted);
-    border:1px solid var(--line-strong);border-radius:7px;padding:7px 13px;
-    display:flex;align-items:center;gap:7px;transition:.18s;
+  .bar-status{
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--teal);
+    display:flex;align-items:center;gap:7px;
   }
-  .key-btn:hover{color:var(--parchment);border-color:var(--amber)}
-  .key-dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
-  .key-dot.on{background:var(--teal);box-shadow:0 0 8px var(--teal)}
+  .bar-status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal)}
+  .source-bar{
+    display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:16px;
+    border-top:1px solid var(--line);flex-wrap:wrap;
+  }
+  .src-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);
+    border:1px solid var(--line-strong);border-radius:6px;padding:4px 10px}
+  .src-label.live{color:var(--teal);border-color:rgba(91,168,160,.4)}
+  .relive{
+    font-family:var(--sc);font-size:13px;color:var(--amber);
+    border:1px solid rgba(232,163,61,.4);border-radius:8px;padding:7px 15px;transition:.16s;
+  }
+  .relive:hover{background:var(--amber);color:var(--ink)}
 
   /* ---------- hero ---------- */
   .hero{padding:74px 0 30px;position:relative}
@@ -259,6 +268,7 @@
   .modal p{font-size:13.5px;color:var(--muted);line-height:1.6;margin-bottom:18px}
   .modal input{width:100%;background:var(--ink);border:1px solid var(--line-strong);border-radius:9px;color:var(--parchment);font-family:var(--mono);font-size:13px;padding:13px 15px;margin-bottom:8px}
   .modal input:focus{outline:none;border-color:var(--amber)}
+  .ready-banner{background:rgba(91,168,160,.1);border:1px solid rgba(91,168,160,.3);border-radius:9px;padding:11px 13px;font-size:12.5px;color:#bfe0db;line-height:1.55;margin-bottom:14px}
   .seg{display:flex;gap:6px;background:var(--ink);border:1px solid var(--line-strong);border-radius:9px;padding:4px;margin-bottom:14px}
   .seg-btn{flex:1;font-family:var(--sc);font-size:13px;color:var(--muted);border-radius:6px;padding:8px;transition:.14s}
   .seg-btn.active{background:var(--slate-2);color:var(--parchment)}
@@ -293,10 +303,7 @@
       <span class="glyph"></span>
       溯源 <small>back to origin</small>
     </div>
-    <button class="key-btn" id="keyBtn">
-      <span class="key-dot" id="keyDot"></span>
-      <span id="keyLabel">连接实时生成</span>
-    </button>
+    <span class="bar-status" id="barStatus"></span>
   </div>
 </header>
 
@@ -358,34 +365,6 @@
   </div>
 </footer>
 
-<!-- key modal -->
-<div class="modal-bg" id="modalBg">
-  <div class="modal">
-    <h3>连接实时生成</h3>
-    <p>连上后即可对<b style="color:var(--parchment)">任意</b>知识点实时开挖，不限于预置样例。两种方式二选一：</p>
-
-    <div class="seg" id="seg">
-      <button class="seg-btn active" data-mode="proxy">用代理地址（推荐）</button>
-      <button class="seg-btn" data-mode="key">直接填 API Key</button>
-    </div>
-
-    <div id="paneProxy">
-      <input id="proxyInput" type="text" placeholder="https://你的域名/api/generate" autocomplete="off" />
-      <div class="modal-note">把密钥藏在服务器端，浏览器不接触密钥，也不受跨域限制。部署方法见随附的 proxy 文件夹（Vercel / Cloudflare 各一份）。</div>
-    </div>
-
-    <div id="paneKey" hidden>
-      <input id="keyInput" type="password" placeholder="sk-..." autocomplete="off" />
-      <div class="modal-note">最省事，适合本地试用。注意：浏览器直连 DeepSeek 可能被跨域拦截；正式上线建议改用代理地址。Key 只存在当前浏览器会话，不上传。</div>
-    </div>
-
-    <div class="modal-row">
-      <button class="cancel" id="keyCancel">取消</button>
-      <button class="save" id="keySave">保存并连接</button>
-    </div>
-  </div>
-</div>
-
 <script>
 /* =========================================================
    溯源 — 回到知识的发生现场
@@ -401,8 +380,13 @@ const ENGINES = [
 ];
 
 let activeEngine = 'chain';
-let conn = { mode:'proxy', key:'', proxy:'' };   // mode: 'proxy' | 'key'
-function isConnected(){ return conn.mode==='key' ? !!conn.key : !!conn.proxy; }
+// 实时生成统一走"本站自己的"代理接口（同源 /api/generate）。
+// 密钥只在服务器端（Render 环境变量 DEEPSEEK_API_KEY）里，前端永不接触。
+// 部署在 http(s) 服务器上时即自动可用；本地 file:// 直接打开时为演示模式。
+const PROXY_URL = (location.protocol==='http:'||location.protocol==='https:')
+  ? (location.origin + '/api/generate')
+  : '';
+function isConnected(){ return !!PROXY_URL; }
 
 /* ---------------- 预置精选样例 ----------------
    每个样例是 SDE 之眼判断过的"发生现场"，但全程本地教育话语。 */
@@ -806,10 +790,30 @@ function coordHTML(d){
   ${d.closing?`<div class="closing">${d.closing}</div>`:''}`;
 }
 
-function render(d){
+function render(d, meta){
+  meta = meta || {};
   if(activeEngine==='fork') canvas.innerHTML=forkHTML(d);
   else if(activeEngine==='coord') canvas.innerHTML=coordHTML(d);
   else canvas.innerHTML=strataHTML(d);
+
+  // 来源条：预置内容给出"用 DeepSeek 实时重挖"入口；实时结果标注来源
+  const topic = d.title;
+  if(meta.preset && isConnected()){
+    const bar=document.createElement('div');
+    bar.className='source-bar';
+    bar.innerHTML=`<span class="src-label">精选样例</span>
+      <button class="relive" id="reliveBtn">⟳ 用 DeepSeek 实时重挖</button>`;
+    canvas.appendChild(bar);
+    document.getElementById('reliveBtn').onclick=()=>go(topic, true);
+  }else if(meta.live){
+    const bar=document.createElement('div');
+    bar.className='source-bar';
+    bar.innerHTML=`<span class="src-label live">DeepSeek 实时生成</span>
+      <button class="relive" id="reliveBtn">⟳ 再挖一次</button>`;
+    canvas.appendChild(bar);
+    document.getElementById('reliveBtn').onclick=()=>go(topic, true);
+  }
+
   recordTrail(d.title, activeEngine, resolveSubject(d.title, d));
   canvas.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -933,34 +937,36 @@ function showError(msg){
 }
 
 /* ---------------- 主流程 ---------------- */
-async function go(topic){
+async function go(topic, forceLive){
   topic=(topic||'').trim();
   if(!topic) return;
 
-  // 预置命中当前引擎 → 直接渲染
   const hit = PRESET[topic];
-  if(hit && hit[activeEngine]){ render(hit[activeEngine]); return; }
 
-  // 该知识点是预置样例，但当前引擎没有预置版本
-  if(hit && !isConnected()){
-    const has = Object.keys(hit).filter(k=>ENGINE_IDS.includes(k)).map(engineTag).join(' / ');
-    canvas.innerHTML=`<div class="err"><b>「${topic}」暂无「${engineTag(activeEngine)}」的预置版本 ▸</b> 它已备好：${has}。换一个引擎即可查看，或连接实时生成对它开挖。</div>`;
+  // 预置命中当前引擎，且不是强制实时 → 渲染精选内容（带"实时重挖"入口）
+  if(hit && hit[activeEngine] && !forceLive){
+    render(hit[activeEngine], {preset:true});
     return;
   }
 
-  // 非预置知识点，且未连接
+  // 未连接（本地 file:// 演示模式）
   if(!isConnected()){
-    canvas.innerHTML=`<div class="err"><b>演示模式 ▸</b> 「${topic}」不在预置样例中。点右上角「连接实时生成」后，任意知识点都能实时开挖。预置样例可直接点：负数 / 导数 / 透视法 / 熵。</div>`;
+    if(hit){
+      const has = Object.keys(hit).filter(k=>ENGINE_IDS.includes(k)).map(engineTag).join(' / ');
+      canvas.innerHTML=`<div class="err"><b>「${topic}」暂无「${engineTag(activeEngine)}」的预置版本 ▸</b> 它已备好：${has}。换一个引擎即可查看。（本地直接打开为演示模式；部署到服务器后即可实时开挖任意内容。）</div>`;
+    }else{
+      canvas.innerHTML=`<div class="err"><b>演示模式 ▸</b> 「${topic}」不在预置样例中。本地直接打开仅能查看预置样例；部署到服务器后，任意知识点都能实时开挖。</div>`;
+    }
     return;
   }
 
-  // 实时生成
+  // 实时生成（非预置知识点，或预置点了"实时重挖"，或预置缺当前引擎）
   showDigging();
   try{
     const data = await generate(topic, activeEngine);
-    render(data);
+    render(data, {live:true});
   }catch(err){
-    showError(err.message||'生成失败，请检查 API Key 或网络。');
+    showError(err.message||'生成失败，请稍后重试。');
   }
 }
 
@@ -1013,27 +1019,16 @@ async function generate(topic, engine){
     messages:[{role:'user',content:buildPrompt(topic,engine)}],
     temperature:0.7
   };
-  let res;
-  if(conn.mode==='key'){
-    // 浏览器直连 DeepSeek（最省事，可能受 CORS 限制）
-    res = await fetch('https://api.deepseek.com/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+conn.key},
-      body:JSON.stringify({model:'deepseek-chat',response_format:{type:'json_object'},...payload})
-    });
-  }else{
-    // 经代理（密钥在服务器端，model/response_format 由代理补齐）
-    res = await fetch(conn.proxy,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-  }
+  // 统一经本站同源代理；密钥在服务器端（model/response_format 由代理补齐）
+  const res = await fetch(PROXY_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  });
   if(!res.ok){
-    if(res.status===401) throw new Error('鉴权失败：API Key 无效，或代理服务器未配置好密钥。');
-    if(conn.mode==='key')
-      throw new Error('DeepSeek 返回错误（'+res.status+'）。浏览器直连常被跨域拦截，建议改用代理地址（见 proxy 文件夹）。');
-    throw new Error('代理返回错误（'+res.status+'）。请检查代理地址是否正确、服务器是否已配置 DEEPSEEK_API_KEY。');
+    if(res.status===401||res.status===402)
+      throw new Error('服务器调用 DeepSeek 失败（'+res.status+'）：请检查 Render 环境变量 DEEPSEEK_API_KEY 是否填好，以及 DeepSeek 账户是否有余额。');
+    throw new Error('实时生成失败（'+res.status+'），请稍后重试。');
   }
   const j = await res.json();
   let txt = j.choices?.[0]?.message?.content || '';
@@ -1044,39 +1039,15 @@ async function generate(topic, engine){
   return data;
 }
 
-/* ---------------- 连接弹窗 ---------------- */
+/* ---------------- 顶部/底部状态 ---------------- */
 function refreshKeyUI(){
   const on = isConnected();
-  $('#keyDot').classList.toggle('on',on);
-  $('#keyLabel').textContent = on?'已连接 · 实时生成':'连接实时生成';
+  const bs=$('#barStatus');
+  if(bs) bs.textContent = on?'实时生成 · 已就绪':'';
   $('#footMode').textContent = on
-    ? (conn.mode==='key'?'实时生成模式 · 直连 DeepSeek':'实时生成模式 · 经代理')
+    ? '实时生成已就绪 · 任意知识点皆可开挖'
     : '演示模式 · 预置精选样例';
 }
-// 分段切换
-document.querySelectorAll('.seg-btn').forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll('.seg-btn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    const m=b.dataset.mode;
-    $('#paneProxy').hidden = m!=='proxy';
-    $('#paneKey').hidden   = m!=='key';
-  };
-});
-$('#keyBtn').onclick=()=>{
-  $('#proxyInput').value=conn.proxy;
-  $('#keyInput').value=conn.key;
-  $('#modalBg').classList.add('show');
-};
-$('#keyCancel').onclick=()=>$('#modalBg').classList.remove('show');
-$('#modalBg').onclick=e=>{ if(e.target===$('#modalBg')) $('#modalBg').classList.remove('show'); };
-$('#keySave').onclick=()=>{
-  const activeMode = document.querySelector('.seg-btn.active').dataset.mode;
-  conn.mode = activeMode;
-  conn.proxy = $('#proxyInput').value.trim();
-  conn.key   = $('#keyInput').value.trim();
-  refreshKeyUI(); $('#modalBg').classList.remove('show');
-};
 
 /* ---------------- bind ---------------- */
 $('#digBtn').onclick=()=>go($('#topic').value);

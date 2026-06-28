@@ -126,7 +126,14 @@
   }
   .ae-limit{background:rgba(232,163,61,.07);border:1px solid rgba(232,163,61,.22);border-radius:10px;padding:13px 16px;font-size:13.5px;color:#cfc8ba;line-height:1.55}
   .ae-limit b{color:var(--amber)}
-  .ae-again{margin-top:13px;font-family:var(--sc);font-size:13px;color:var(--muted);border:1px solid var(--line-strong);border-radius:8px;padding:7px 15px;transition:.16s}
+  .ae-actions{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
+  .ae-save{
+    font-family:var(--sc);font-size:13px;font-weight:600;color:var(--ink);background:var(--amber);
+    border-radius:8px;padding:7px 15px;transition:.16s;
+  }
+  .ae-save:hover{background:#f2b658}
+  .ae-save.done{background:transparent;color:var(--teal);border:1px solid rgba(91,168,160,.4);font-weight:500;cursor:default}
+  .ae-again{font-family:var(--sc);font-size:13px;color:var(--muted);border:1px solid var(--line-strong);border-radius:8px;padding:7px 15px;transition:.16s}
   .ae-again:hover{color:var(--parchment);border-color:var(--teal)}
   @media(max-width:560px){.ae-map{grid-template-columns:1fr;gap:5px;text-align:left}.ae-map-link{justify-self:start}}
 
@@ -280,12 +287,13 @@
   .tg-items{display:flex;flex-direction:column;gap:7px}
 
   .trail-item{
-    display:flex;align-items:center;gap:12px;background:var(--slate);border:1px solid var(--line-strong);
-    border-left:3px solid var(--muted);border-radius:9px;padding:9px 11px 9px 13px;transition:.16s;flex-wrap:wrap;
+    display:flex;flex-direction:column;gap:9px;background:var(--slate);border:1px solid var(--line-strong);
+    border-left:3px solid var(--muted);border-radius:9px;padding:10px 11px 10px 13px;transition:.16s;
   }
   .trail-item.lv-0{border-left-color:var(--muted)}
   .trail-item.lv-1{border-left-color:var(--amber)}
   .trail-item.lv-2{border-left-color:var(--teal)}
+  .ti-main{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .trail-item .ti-topic{font-family:var(--sc);font-weight:600;font-size:14.5px;cursor:pointer;transition:.16s}
   .trail-item .ti-topic:hover{color:var(--amber)}
   .trail-item .ti-engs{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em;flex:1;min-width:90px}
@@ -300,6 +308,15 @@
   .ti-lv.lv2.on{background:var(--teal);color:var(--ink);border-color:transparent;font-weight:600}
   .trail-item .ti-x{color:var(--muted);font-size:15px;line-height:1;padding:0 2px;cursor:pointer;transition:.16s}
   .trail-item .ti-x:hover{color:#f2a08c}
+  .ti-scenes{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding-left:1px}
+  .ti-scenes-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em}
+  .ti-scene{
+    display:inline-flex;align-items:center;gap:5px;font-family:var(--sc);font-size:12.5px;color:var(--teal);
+    border:1px solid rgba(91,168,160,.3);border-radius:14px;padding:3px 6px 3px 11px;transition:.14s;cursor:pointer;
+  }
+  .ti-scene:hover{background:rgba(91,168,160,.12);border-color:var(--teal)}
+  .ti-scene-x{color:var(--muted);font-size:13px;line-height:1;padding:0 2px}
+  .ti-scene-x:hover{color:#f2a08c}
 
 
   .digging{padding:54px 0;text-align:center}
@@ -436,6 +453,7 @@ const ENGINES = [
 ];
 
 let activeEngine = 'chain';
+let currentTopic = '';   // 当前结果区正展示的知识点（用于重看类比时避免重复开挖）
 // 实时生成统一走"本站自己的"代理接口（同源 /api/generate）。
 // 密钥只在服务器端（Render 环境变量 DEEPSEEK_API_KEY）里，前端永不接触。
 // 部署在 http(s) 服务器上时即自动可用；本地 file:// 直接打开时为演示模式。
@@ -871,6 +889,7 @@ function render(d, meta){
   }
 
   recordTrail(d.title, activeEngine, resolveSubject(d.title, d));
+  currentTopic = d.title;
 
   // 费曼类比层：用日常场景把这个知识"重新讲一遍"（内部用SDE搭骨架，输出零术语）
   if(isConnected()) appendAnalogyEntry(d.title);
@@ -918,8 +937,28 @@ async function runAnalogy(topic, scene){
   }
 }
 
+// 从足迹里点一个已存场景：打开该知识，再把存好的类比原样调回（不重新调用API）
+async function replayAnalogy(topic, scene){
+  const saved=getAnalogy(topic, scene);
+  if(!saved) return;
+  // 若结果区已经展示着该知识点，直接复用，避免重复开挖
+  const already = (currentTopic===topic) && document.getElementById('aeResult');
+  if(!already){
+    const rec=storeGet().find(x=>x.topic===topic);
+    if(rec){ activeEngine=rec.last||rec.engines[0]; renderEngines(); }
+    $('#topic').value=topic;
+    await go(topic);
+  }
+  for(let i=0;i<40;i++){
+    const out=document.getElementById('aeResult');
+    if(out){ renderAnalogy(out, topic, scene, saved.data); out.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+    await new Promise(r=>setTimeout(r,50));
+  }
+}
+
 function renderAnalogy(out, topic, scene, d){
   const maps=Array.isArray(d.mappings)?d.mappings:[];
+  const saved=isAnalogySaved(topic, scene);
   out.innerHTML=`
     <div class="ae-card">
       <div class="ae-card-head"><span class="ae-badge">${scene}</span><span class="ae-arrow">≈</span><span class="ae-topic">${topic}</span></div>
@@ -936,7 +975,17 @@ function renderAnalogy(out, topic, scene, d){
       ${d.aha?`<div class="ae-aha">${d.aha}</div>`:''}
       ${d.limit?`<div class="ae-limit"><b>这个类比的边界 ▸</b> ${d.limit}</div>`:''}
     </div>
-    <button class="ae-again" id="aeAgain">换个场景再讲一次</button>`;
+    <div class="ae-actions">
+      <button class="ae-save ${saved?'done':''}" id="aeSave" ${saved?'disabled':''}>${saved?'✓ 已存进足迹':'★ 存进学习足迹'}</button>
+      <button class="ae-again" id="aeAgain">换个场景再讲一次</button>
+    </div>`;
+  const saveBtn=document.getElementById('aeSave');
+  if(saveBtn && !saved){
+    saveBtn.onclick=()=>{
+      saveAnalogy(topic, scene, d);
+      saveBtn.textContent='✓ 已存进足迹'; saveBtn.classList.add('done'); saveBtn.disabled=true;
+    };
+  }
   const again=document.getElementById('aeAgain');
   if(again) again.onclick=()=>{ out.innerHTML=''; document.getElementById('aeInput')?.focus(); };
 }
@@ -994,6 +1043,31 @@ function delTopic(topic){
   storeSet(trail); renderTrail();
 }
 
+// 把一次场景类比存进对应知识点的足迹记录里（同场景覆盖更新）
+function saveAnalogy(topic, scene, data){
+  trail = storeGet();
+  let rec = trail.find(x=>x.topic===topic);
+  if(!rec){  // 理论上已存在（类比前必有结果），兜底新建
+    rec = {topic, subject:'其它', engines:[activeEngine], last:activeEngine, level:0, ts:Date.now()};
+    trail.push(rec);
+  }
+  rec.analogies = rec.analogies || [];
+  const i = rec.analogies.findIndex(a=>a.scene===scene);
+  const entry = {scene, data, ts:Date.now()};
+  if(i>=0) rec.analogies[i]=entry; else rec.analogies.push(entry);
+  storeSet(trail); renderTrail();
+}
+function getAnalogy(topic, scene){
+  const rec = storeGet().find(x=>x.topic===topic);
+  return rec && rec.analogies ? rec.analogies.find(a=>a.scene===scene) : null;
+}
+function isAnalogySaved(topic, scene){ return !!getAnalogy(topic, scene); }
+function delAnalogy(topic, scene){
+  trail = storeGet();
+  const rec = trail.find(x=>x.topic===topic);
+  if(rec && rec.analogies){ rec.analogies = rec.analogies.filter(a=>a.scene!==scene); storeSet(trail); renderTrail(); }
+}
+
 function renderTrail(){
   trail = storeGet();
   const sec=$('#trailSection');
@@ -1020,12 +1094,19 @@ function renderTrail(){
       <div class="tg-items">
         ${items.map(x=>`
           <div class="trail-item lv-${x.level}" data-topic="${encodeURIComponent(x.topic)}">
-            <span class="ti-topic" data-open="1">${x.topic}</span>
-            <span class="ti-engs">${x.engines.map(engineTag).join(' · ')}</span>
-            <span class="ti-levels">
-              ${LEVELS.map(l=>`<button class="ti-lv ${l.cls} ${x.level===l.k?'on':''}" data-lv="${l.k}" title="${l.label}">${l.label}</button>`).join('')}
-            </span>
-            <span class="ti-x" data-del="1" title="删除">×</span>
+            <div class="ti-main">
+              <span class="ti-topic" data-open="1">${x.topic}</span>
+              <span class="ti-engs">${x.engines.map(engineTag).join(' · ')}</span>
+              <span class="ti-levels">
+                ${LEVELS.map(l=>`<button class="ti-lv ${l.cls} ${x.level===l.k?'on':''}" data-lv="${l.k}" title="${l.label}">${l.label}</button>`).join('')}
+              </span>
+              <span class="ti-x" data-del="1" title="删除">×</span>
+            </div>
+            ${(x.analogies&&x.analogies.length)?`
+              <div class="ti-scenes">
+                <span class="ti-scenes-label">生活类比</span>
+                ${x.analogies.map(a=>`<button class="ti-scene" data-scene="${encodeURIComponent(a.scene)}" title="重看这个类比">${a.scene}<span class="ti-scene-x" data-delscene="${encodeURIComponent(a.scene)}">×</span></button>`).join('')}
+              </div>`:''}
           </div>`).join('')}
       </div>
     </div>`;
@@ -1043,6 +1124,15 @@ function renderTrail(){
       b.onclick=e=>{ e.stopPropagation(); setLevel(topic, +b.dataset.lv); };
     });
     el.querySelector('.ti-x').onclick=e=>{ e.stopPropagation(); delTopic(topic); };
+    el.querySelectorAll('.ti-scene').forEach(s=>{
+      s.onclick=e=>{
+        if(e.target.classList.contains('ti-scene-x')) return;
+        replayAnalogy(topic, decodeURIComponent(s.dataset.scene));
+      };
+    });
+    el.querySelectorAll('.ti-scene-x').forEach(x=>{
+      x.onclick=e=>{ e.stopPropagation(); delAnalogy(topic, decodeURIComponent(x.dataset.delscene)); };
+    });
   });
 }
 
